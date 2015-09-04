@@ -1,0 +1,8 @@
+filePath=D:\\eclipse\\projects\\WMSAPI\\files\\
+#filePath=/export/home/wmsapi/files/
+
+backupPath=D:\\eclipse\\projects\\WMSAPI\\files\\backup\\
+#backupPath=/export/home/wmsapi/files/backup/
+
+errorPath=D:\\eclipse\\projects\\WMSAPI\\files\\error\\
+#errorPath=/export/home/wmsapi/files/error/
