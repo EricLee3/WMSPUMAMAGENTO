@@ -60,6 +60,7 @@ public class TaskInventory extends TimerTask {
 						continue;
 					}
 					JSONObject sendData = createInvenData(list);
+					System.out.println("###sendData:" + sendData);
 					logger.info(sendData.toString());
 					String result = sendByPhp(url, sendData.toString());
 					logger.debug("Send Result: "+ result);						

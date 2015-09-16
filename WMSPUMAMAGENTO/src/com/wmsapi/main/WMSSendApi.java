@@ -19,13 +19,13 @@ public class WMSSendApi {
 	public static void main(String args[]) {
 		logger.info("start!!");
 		Timer t1 = new Timer(false);
-		String startDtFoInventory = "2015-09-04 01:03:00";
-		String startDtFoOutnound = "2015-09-03 20:30:00";
-		String startExpressDailyAll ="2015-08-27 04:00:00";
+		String startDtFoInventory = "2015-09-17 01:00:00";
+		String startDtForOutnound = "2015-09-16 20:30:00";
+		String startExpressDailyAll ="2015-09-17 04:00:00";
 		SimpleDateFormat transFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		try{
 			Date startInvenDt = transFormat.parse(startDtFoInventory);
-			Date startOutboundDt = transFormat.parse(startDtFoOutnound);
+			Date startOutboundDt = transFormat.parse(startDtForOutnound);
 			Date startExpressDt = transFormat.parse(startExpressDailyAll);
 			
 			if("sendOutbound".equals(args[0])) {

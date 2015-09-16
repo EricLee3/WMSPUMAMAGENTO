@@ -150,116 +150,164 @@ public class DAOSendAPI {
 		return list;
 	}
 	
+	
+	/**
+	 * @desc 브랜드, 센터별 현재고와 가용재고 조회 
+	 * 		가용재고 =  현재고 - (출고예정 + 반출예정 + 기타출고예정)
+	 * 		기존 : 가용재고 =  현재고 - (출고확정전 + 기타출고확정전)
+	 * @param centerCd
+	 * @param brandCd
+	 * @return
+	 */
 	public ArrayList<DTOSendInventory> callSendInventory(String centerCd, String brandCd) {
-		
 		ArrayList<DTOSendInventory> list = new ArrayList<DTOSendInventory>();
 		ConnManager connMgr = ConnManager.getInstance();
 		StringBuilder sb = new StringBuilder();
 		ResultSet rsInven = null;
 		String[] itemState = {"A","C"}; 
-		
+
 		try {
 			conn = connMgr.getConnection();
 			for(int i=0; i<itemState.length; i++) {
-				sb.append(" SELECT L4.USER_ID userId, L4.USER_PW userPw, 'sendInventory' callId, 'UTF8' encType, L1.ITEM_CD itemCd, L1.ITEM_STATE itemState, L1.STOCK_QTY currQty,")
-				.append(" ( L1.STOCK_QTY -(NVL(L2.OUT_WAIT_QTY,0)+NVL(L3.RTN_OUT_QTY,0))) availQty ")
-				.append(" FROM ( ")
-				.append(" SELECT A.ITEM_CD, NVL(B.ITEM_STATE, '").append(itemState[i]).append("') ITEM_STATE, NVL(SUM(STOCK_QTY) ,0) AS STOCK_QTY ")
-				.append(" FROM CMITEM A, LS010NM B ")
-				.append(" WHERE A.BRAND_CD = B.BRAND_CD(+) ")
-				.append(" AND A.ITEM_CD = B.ITEM_CD(+) ")
-				.append(" AND '").append(itemState[i]).append("' = B.ITEM_STATE(+) ")
-				.append(" AND A.BRAND_CD = '").append(brandCd).append("' ")
-				.append(" AND   A.ITEM_CD IN  ")
-				.append("      (  SELECT B.ITEM_CD ")
-				.append("        FROM LI020NM A, LI020ND B ")
-				.append("        WHERE     A.BRAND_CD = '").append(brandCd).append("' ")
-				.append("         AND A.CENTER_CD = '").append(centerCd).append("' ")
-				.append("         AND A.BRAND_CD = B.BRAND_CD ")
-				.append("         AND A.CENTER_CD = B.CENTER_CD ")
-				.append("         AND A.INBOUND_DATE = B.INBOUND_DATE ")
-				.append("         AND A.INBOUND_NO = B.INBOUND_NO ")
-				.append("         AND A.INBOUND_STATE = '60' ")
-				.append("         GROUP BY B.ITEM_CD) ")
-				.append(" GROUP BY A.ITEM_CD, B.ITEM_STATE ")
-				.append(" ) L1, ")
-				.append(" ( ")
-				.append(" SELECT ITEM_CD, ITEM_STATE, NVL(SUM(L1.CONFIRM_QTY), 0) AS OUT_WAIT_QTY ")
-				.append(" FROM ( ")
-				.append(" SELECT ")
-				.append(" ITEM_CD, '").append(itemState[i]).append("' ITEM_STATE, SUM(M2.CONFIRM_QTY)    AS CONFIRM_QTY ")
-				.append(" FROM LO020NM M1 ")
-				.append(" JOIN LO020ND M2 ON M2.CENTER_CD      = M1.CENTER_CD ")
-				.append(" AND M2.BRAND_CD       = M1.BRAND_CD ")
-				.append(" AND M2.OUTBOUND_DATE  = M1.OUTBOUND_DATE ")
-				.append(" AND M2.OUTBOUND_NO    = M1.OUTBOUND_NO ")
-				.append(" JOIN CMCODE  C1 ON C1.CODE_CD        = M1.INOUT_CD ")
-				.append(" AND C1.CODE_GRP       = 'LDIV03' ")
-				.append(" AND C1.SUB_CD        IN ('D1' ,'D2')        ")        
-				.append(" WHERE M1.CENTER_CD       = '").append(centerCd).append("' ")
-				.append(" AND M1.BRAND_CD        = '").append(brandCd).append("' ")
-				.append(" AND M1.OUTBOUND_DATE   > ADD_MONTHS(TRUNC(SYSDATE, 'DD'), -1) ")
-				.append(" AND M2.OUTBOUND_STATE IN ('20' ,'30' ,'40') ")
-				.append(" AND M2.ITEM_STATE = '").append(itemState[i]).append("'")
-				.append(" GROUP BY ITEM_CD, '").append(itemState[i]).append("' ")
-				.append(" UNION ALL ")
-				.append(" SELECT ITEM_CD, '").append(itemState[i]).append("' ITEM_STATE, SUM(M2.CONFIRM_QTY)    AS CONFIRM_QTY ")
-				.append(" FROM LC010NM        M1 ")
-				.append(" JOIN LC010ND   M2 ON M2.CENTER_CD      = M1.CENTER_CD ")
-				.append(" AND M2.BRAND_CD       = M1.BRAND_CD ")
-				.append(" AND M2.ETC_DATE       = M1.ETC_DATE ")
-				.append(" AND M2.ETC_NO         = M1.ETC_NO ")
-				.append(" WHERE M1.CENTER_CD        = '").append(centerCd).append("' ")
-				.append(" AND M1.BRAND_CD         = '").append(brandCd).append("' ")
-				.append(" AND M1.ETC_DATE         > ADD_MONTHS(TRUNC(SYSDATE, 'DD'), -1) ")
-				.append(" AND M1.CONFIRM_YN    = 'N' ")
-				.append(" AND SUBSTR(M1.INOUT_CD ,1,1)      = 'D' ")
-				.append(" AND M2.ITEM_STATE = '").append(itemState[i]).append("'")
-				.append(" GROUP BY ITEM_CD, '").append(itemState[i]).append("' ")
-				.append(" ) L1 ")
-				.append(" GROUP BY ITEM_CD, ITEM_STATE ")
-				.append(" ) L2, ")
-				.append(" ( ")
-				.append(" SELECT ITEM_CD, '").append(itemState[i]).append("' ITEM_STATE, NVL(SUM(M2.CONFIRM_QTY), 0) AS RTN_OUT_QTY ")
-				.append(" FROM LI020NM M1 ")
-				.append(" JOIN LI020ND M2 ON M2.CENTER_CD      = M1.CENTER_CD ")
-				.append(" AND M2.BRAND_CD       = M1.BRAND_CD ")
-				.append(" AND M2.INBOUND_DATE   = M1.INBOUND_DATE ")
-				.append(" AND M2.INBOUND_NO     = M1.INBOUND_NO ")
-				.append(" JOIN CMCODE  C1 ON C1.CODE_CD        = M1.INOUT_CD ")
-				.append(" AND C1.CODE_GRP       = 'LDIV03' ")
-				.append(" AND C1.SUB_CD        IN ('D3')   ")            
-				.append(" WHERE M1.CENTER_CD     = '").append(centerCd).append("' ")
-				.append(" AND M1.BRAND_CD      = '").append(brandCd).append("' ")
-				.append(" AND M1.INBOUND_DATE  > ADD_MONTHS(TRUNC(SYSDATE, 'DD'), -1) ")
-				.append(" AND M2.INBOUND_STATE = '40' ")
-				.append(" AND M2.ITEM_STATE = '").append(itemState[i]).append("' ")
-				.append(" GROUP BY ITEM_CD, '").append(itemState[i]).append("' ")
-				.append(" ) L3, CMAPIUSER L4 ")
-				.append(" WHERE L1.ITEM_CD = L2.ITEM_CD(+) ")
-				.append(" AND L1.ITEM_STATE = L2.ITEM_STATE(+) ")
-				.append(" AND L1.ITEM_CD = L3.ITEM_CD(+) ")
-				.append(" AND L1.ITEM_STATE = L3.ITEM_STATE(+) ")
-				.append(" AND '").append(brandCd).append("' = L4.BRAND_CD(+) ");
-				logger.info(sb.toString());
-				pstmt = conn.prepareStatement(sb.toString());
-				rs = pstmt.executeQuery();
-				while(rs.next()) {
-					DTOSendInventory dto = new DTOSendInventory();
-					dto.setBizUserId(rs.getString("userId"));
-					dto.setBizUserPw(rs.getString("userPw"));
-					dto.setCallId(rs.getString("callId"));
-					dto.setEncType(rs.getString("encType"));
-					dto.setItemCd(rs.getString("itemCd"));
-					dto.setItemState(rs.getString("itemState"));
-					dto.setCurrQty(rs.getString("currQty"));
-					dto.setAvailQty(rs.getString("availQty"));
-					
-					list.add(dto);
-				}
-				sb.delete(0, sb.length());
-			}
-			
+				  sb.append("  SELECT   L4.USER_ID userId                                                            ")              
+					.append("         , L4.USER_PW userPw, 'sendInventory' callId									 ")
+					.append("         ,'UTF8' encType																 ")
+					.append("         , L1.ITEM_CD itemCd, '").append(itemState[i]).append("'  itemState			 ")
+					.append("         , L1.STOCK_QTY currQty														 ")
+					.append("         , CASE WHEN  ( L1.STOCK_QTY -(NVL(L2.OUT_WAIT_QTY,0)+NVL(L3.RTN_OUT_QTY,0))) < 0  THEN 0 	 ")
+					.append("                ELSE  ( L1.STOCK_QTY -(NVL(L2.OUT_WAIT_QTY,0)+NVL(L3.RTN_OUT_QTY,0)))  	 ")
+					.append("            END availQty 	 ")
+					.append("  FROM ( 																				 ")
+					.append("         SELECT  AA.BRAND_CD 															 ")
+					.append("               , BB.CENTER_CD 															 ")
+					.append("               , AA.ITEM_CD 															 ")
+					.append("               , NVL(SUM(CC.STOCK_QTY ),0) AS  STOCK_QTY								 ")
+					.append("         FROM CMITEM AA 																 ")
+					.append("         INNER JOIN  (																	 ")
+					.append("                             SELECT B.BRAND_CD ,  B.CENTER_CD , B.ITEM_CD 				 ")
+					.append("                             FROM LI020NM A, LI020ND B 								 ")
+					.append("                             WHERE A.BRAND_CD  = '").append(brandCd).append("'          ")
+					.append("                              AND A.CENTER_CD  = '").append(centerCd).append("'          ")
+					.append("                              AND A.BRAND_CD = B.BRAND_CD 								 ")
+					.append("                              AND A.CENTER_CD = B.CENTER_CD 							 ")
+					.append("                              AND A.INBOUND_DATE = B.INBOUND_DATE 						 ")
+					.append("                              AND A.INBOUND_NO = B.INBOUND_NO 							 ")
+					.append("                              AND A.INBOUND_STATE = '60' 								 ")
+					.append("                              GROUP BY B.BRAND_CD, B.CENTER_CD, B.ITEM_CD				 ")
+					.append("                      ) BB  															 ")
+					.append("                   ON  AA.BRAND_CD = BB.BRAND_CD 										 ")
+					.append("                   AND  AA.ITEM_CD = BB.ITEM_CD										 ")
+					.append("         LEFT OUTER JOIN LS010NM CC 													 ")
+					.append("                   ON  BB.BRAND_CD = CC.BRAND_CD 										 ")
+					.append("                   AND BB.CENTER_CD = CC.CENTER_CD 									 ")
+					.append("                   AND BB.ITEM_CD = CC.ITEM_CD											 ")
+					.append("                   AND CC.ITEM_STATE = '").append(itemState[i]).append("'               ")
+					.append("         GROUP BY  AA.BRAND_CD , BB.CENTER_CD ,  AA.ITEM_CD							 ")
+					.append("     ) L1, 																			 ")
+					.append("     ( 																				 ")
+					.append("          SELECT  ITEM_CD																 ")
+					.append("                 ,NVL(SUM(L1.CONFIRM_QTY), 0) AS OUT_WAIT_QTY 							 ")
+					.append("          FROM ( 																		 ")
+					.append("                 SELECT 																 ")
+					.append("                     M2.ITEM_CD , SUM(M2.ORDER_QTY)    AS CONFIRM_QTY 					 ")
+					.append("                 FROM       LO010NM M1 												 ")
+					.append("                 INNER JOIN LO010ND M2 												 ")
+					.append("                         ON  M2.CENTER_CD = M1.CENTER_CD 								 ")
+					.append("                         AND M2.BRAND_CD = M1.BRAND_CD 								 ")
+					.append("                         AND M2.ORDER_DATE = M1.ORDER_DATE 							 ")
+					.append("                         AND M2.ORDER_NO = M1.ORDER_NO 								 ")
+					.append("                 INNER JOIN CMCODE  C1 												 ")
+					.append("                         ON  C1.CODE_CD = M1.INOUT_CD 									 ")
+					.append("                         AND C1.CODE_GRP = 'LDIV03' 									 ")
+					.append("                         AND C1.SUB_CD IN ('D1' ,'D2')                					 ")
+					.append("                 WHERE M1.CENTER_CD       = '").append(centerCd).append("'              ")
+					.append("                 AND M1.BRAND_CD        = '").append(brandCd).append("'                 ")
+					.append("                 AND M1.ORDER_DATE   > ADD_MONTHS(TRUNC(SYSDATE, 'DD'), -1) 			 ")
+					.append("  				  AND NOT EXISTS                                                         ")
+					.append("  						(																 ")
+					.append("  						   SELECT 														 ")
+					.append("  								'Z'														 ")
+					.append("  						   FROM LO020NM													 ")
+					.append("  						   WHERE CENTER_CD = M1.CENTER_CD								 ")
+					.append("  						   AND   BRAND_CD = M1.BRAND_CD									 ")
+					.append("  						   AND   ORDER_DATE = M1.ORDER_DATE								 ")
+					.append("  						   AND   ORDER_NO = M1.ORDER_NO									 ")
+					.append("  						   AND   OUTBOUND_STATE ='50'									 ")
+					.append("  						)																 ")
+					.append("                 AND M2.ITEM_STATE = '").append(itemState[i]).append("'                 ")
+					.append("                 GROUP BY ITEM_CD 														 ")
+					.append("                 UNION ALL 															 ")
+					.append("                 SELECT 																 ")
+					.append("                     ITEM_CD , SUM(M2.CONFIRM_QTY)    AS CONFIRM_QTY 					 ")
+					.append("                 FROM        LC010NM   M1 												 ")
+					.append("                 INNER JOIN  LC010ND   M2 												 ")
+					.append("                         ON  M2.CENTER_CD = M1.CENTER_CD 								 ")
+					.append("                         AND M2.BRAND_CD = M1.BRAND_CD 								 ")
+					.append("                         AND M2.ETC_DATE = M1.ETC_DATE 								 ")
+					.append("                         AND M2.ETC_NO = M1.ETC_NO 									 ")
+					.append("                 WHERE M1.CENTER_CD        = '").append(centerCd).append("'             ")
+					.append("                 AND M1.BRAND_CD         = '").append(brandCd).append("'                ")
+					.append("                 AND M1.ETC_DATE         > ADD_MONTHS(TRUNC(SYSDATE, 'DD'), -1) 		 ")
+					.append("                 AND M1.CONFIRM_YN    = 'N' 											 ")
+					.append("                 AND INOUT_CD LIKE  'D%' 								                 ")
+					.append("                 AND M2.ITEM_STATE = '").append(itemState[i]).append("'                 ")
+					.append("                 GROUP BY ITEM_CD														 ")
+					.append("         ) L1 																			 ")
+					.append("         GROUP BY ITEM_CD 																 ")
+					.append("   ) L2, 																				 ")
+					.append("  ( 																					 ")
+					.append("      SELECT ITEM_CD, NVL(SUM(M2.ORDER_QTY), 0) AS RTN_OUT_QTY 						 ")
+					.append("      FROM       LI010NM M1 															 ")
+					.append("      INNER JOIN LI010ND M2 															 ")
+					.append("              ON M2.CENTER_CD = M1.CENTER_CD 											 ")
+					.append("              AND M2.BRAND_CD = M1.BRAND_CD 											 ")
+					.append("              AND M2.ORDER_DATE = M1.ORDER_DATE 										 ")
+					.append("              AND M2.ORDER_NO = M1.ORDER_NO 											 ")
+					.append("      INNER JOIN CMCODE  C1 															 ")
+					.append("              ON C1.CODE_CD  = M1.INOUT_CD 											 ")
+					.append("              AND C1.CODE_GRP = 'LDIV03' 												 ")
+					.append("              AND C1.SUB_CD  IN ('D3')               									 ")
+					.append("      WHERE M1.CENTER_CD =  '").append(centerCd).append("'                              ")
+					.append("      AND M1.BRAND_CD    =  '").append(brandCd).append("'                               ")
+					.append("      AND M1.ORDER_DATE  > ADD_MONTHS(TRUNC(SYSDATE, 'DD'), -1) 						 ")
+					.append("  	   AND NOT EXISTS                                               ")
+					.append("  		(															 ")
+					.append("  			SELECT 													 ")
+					.append("  			'Z'														 ")
+					.append("  			FROM  LI020NM											 ")
+					.append("  			WHERE CENTER_CD =M1.CENTER_CD							 ")
+					.append("  			AND   BRAND_CD = M1.BRAND_CD								 ")
+					.append("  			AND   ORDER_DATE = M1.ORDER_DATE							 ")
+					.append("  			AND   ORDER_NO = M1.ORDER_NO								 ")
+					.append("  			AND   INOUT_CD  LIKE 'D%'								 ")
+					.append("  			AND   INBOUND_STATE ='50'								 ")
+					.append("		 )															 ")
+					.append("      AND M2.ITEM_STATE = '").append(itemState[i]).append("'                            ")
+					.append("      GROUP BY ITEM_CD 																 ")
+					.append("  ) L3																					 ")
+					.append("  , CMAPIUSER L4 																		 ")
+					.append("  WHERE L1.ITEM_CD = L2.ITEM_CD(+) 													 ")
+					.append("  AND L1.ITEM_CD = L3.ITEM_CD(+) 														 ")
+					.append("  AND '").append(brandCd).append("' = L4.BRAND_CD(+) 									 ");
+				
+					logger.info(sb.toString());
+					pstmt = conn.prepareStatement(sb.toString());
+					rs = pstmt.executeQuery();
+					while(rs.next()) {
+						DTOSendInventory dto = new DTOSendInventory();
+						dto.setBizUserId(rs.getString("userId"));
+						dto.setBizUserPw(rs.getString("userPw"));
+						dto.setCallId(rs.getString("callId"));
+						dto.setEncType(rs.getString("encType"));
+						dto.setItemCd(rs.getString("itemCd"));
+						dto.setItemState(rs.getString("itemState"));
+						dto.setCurrQty(rs.getString("currQty"));
+						dto.setAvailQty(rs.getString("availQty"));
+						
+						list.add(dto);
+					}
+					sb.delete(0, sb.length());
+			} //end for
 			logger.debug("listSize: "+list.size());
 		} catch (SQLException e) {
 			logger.error(e.getMessage());
