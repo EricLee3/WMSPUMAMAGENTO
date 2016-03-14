@@ -152,9 +152,9 @@ public class DAOSendAPI {
 	
 	
 	/**
-	 * @desc ºê·£µå, ¼¾ÅÍº° ÇöÀç°í¿Í °¡¿ëÀç°í Á¶È¸ 
-	 * 		°¡¿ëÀç°í =  ÇöÀç°í - (Ãâ°í¿¹Á¤ + ¹ÝÃâ¿¹Á¤ + ±âÅ¸Ãâ°í¿¹Á¤)
-	 * 		±âÁ¸ : °¡¿ëÀç°í =  ÇöÀç°í - (Ãâ°íÈ®Á¤Àü + ±âÅ¸Ãâ°íÈ®Á¤Àü)
+	 * @desc ï¿½ê·£ï¿½ï¿½, ï¿½ï¿½ï¿½Íºï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¸ 
+	 * 		ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ =  ï¿½ï¿½ï¿½ï¿½ï¿½ - (ï¿½ï¿½ï¿½ï¿½ï¿½ + ï¿½ï¿½ï¿½â¿¹ï¿½ï¿½ + ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ï¿½)
+	 * 		ï¿½ï¿½ï¿½ï¿½ : ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ =  ï¿½ï¿½ï¿½ï¿½ï¿½ - (ï¿½ï¿½ï¿½È®ï¿½ï¿½ï¿½ï¿½ + ï¿½ï¿½Å¸ï¿½ï¿½ï¿½È®ï¿½ï¿½ï¿½ï¿½)
 	 * @param centerCd
 	 * @param brandCd
 	 * @return
@@ -692,6 +692,7 @@ public class DAOSendAPI {
 		StringBuilder sb = new StringBuilder();
 		String condQuery = ""; 
 		if("60".equals(code)) {
+			// Puma Magentoê°€ ì•„ë‹Œê²½ìš°	[IOS]
 			condQuery = " AND EAI_ERR_MSG = '10' ";
 		} else {
 			condQuery = " AND EAI_ERR_MSG IS NULL ";
@@ -848,18 +849,18 @@ public class DAOSendAPI {
 		sb.append(" SELECT USER_ID bizUserId, USER_PW bizUserPw, '").append(callId)
 		.append("' callId, 'UTF8' encType , M3.BRAND_NO brandNo, INVC_NO expressNo, ")  
 		.append(" DECODE(CRG_ST, '91', 'S', 'F') dvState, ") 
-		.append(" CASE WHEN NO_CLDV_RSN_CD = '01' THEN '°í°´Á¤º¸¿À·ù' ")   
-		.append(" WHEN NO_CLDV_RSN_CD = '02' THEN '°í°´ºÎÀç'  ")
-		.append(" WHEN NO_CLDV_RSN_CD = '05' THEN 'Áö¿¬µµÂø'  ")
-		.append(" WHEN NO_CLDV_RSN_CD = '06' THEN 'ºÐ·ù¿À·ù'  ")
-		.append(" WHEN NO_CLDV_RSN_CD = '08' THEN 'ÅëÈ­ºÒ°¡´É' ")  
-		.append(" WHEN NO_CLDV_RSN_CD = '09' THEN '¼öÃë°ÅºÎ'  ")
-		.append(" WHEN NO_CLDV_RSN_CD = '11' THEN 'ÃµÀçÁöº¯'  ")
-		.append(" WHEN NO_CLDV_RSN_CD = '16' THEN 'ÂøÁöº¯°æ'  ")
-		.append(" WHEN NO_CLDV_RSN_CD = '21' THEN '»óÇ°»ç°í(ÆÄ¼Õ/ºÐ½Ç)' ")  
-		.append(" WHEN NO_CLDV_RSN_CD = '23' THEN 'Åä¿äÈÞ¹«'  ")
-		.append(" WHEN NO_CLDV_RSN_CD = '24' THEN 'ÁöÁ¤ÀÏ¹è´Þ' ")  
-		.append(" WHEN NO_CLDV_RSN_CD = '32' THEN 'Â÷·®°íÀå/»ç°í' ")  
+		.append(" CASE WHEN NO_CLDV_RSN_CD = '01' THEN 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½' ")   
+		.append(" WHEN NO_CLDV_RSN_CD = '02' THEN 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'  ")
+		.append(" WHEN NO_CLDV_RSN_CD = '05' THEN 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'  ")
+		.append(" WHEN NO_CLDV_RSN_CD = '06' THEN 'ï¿½Ð·ï¿½ï¿½ï¿½ï¿½ï¿½'  ")
+		.append(" WHEN NO_CLDV_RSN_CD = '08' THEN 'ï¿½ï¿½È­ï¿½Ò°ï¿½ï¿½ï¿½' ")  
+		.append(" WHEN NO_CLDV_RSN_CD = '09' THEN 'ï¿½ï¿½ï¿½ï¿½Åºï¿½'  ")
+		.append(" WHEN NO_CLDV_RSN_CD = '11' THEN 'Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'  ")
+		.append(" WHEN NO_CLDV_RSN_CD = '16' THEN 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'  ")
+		.append(" WHEN NO_CLDV_RSN_CD = '21' THEN 'ï¿½ï¿½Ç°ï¿½ï¿½ï¿½(ï¿½Ä¼ï¿½/ï¿½Ð½ï¿½)' ")  
+		.append(" WHEN NO_CLDV_RSN_CD = '23' THEN 'ï¿½ï¿½ï¿½ï¿½Þ¹ï¿½'  ")
+		.append(" WHEN NO_CLDV_RSN_CD = '24' THEN 'ï¿½ï¿½ï¿½ï¿½ï¿½Ï¹ï¿½ï¿½' ")  
+		.append(" WHEN NO_CLDV_RSN_CD = '32' THEN 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½' ")  
 		.append(" END noDvReason  ")
 		.append(" , TO_CHAR(REG_DTIME,'YYYYMMDDHH24MISS') regDatetime   ")
 		.append(" FROM EDIEXPRESS_CJ_RECEIVE M1 , CMAPIUSER M2 , ( SELECT DISTINCT L1.CENTER_CD, ") 
