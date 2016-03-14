@@ -36,15 +36,23 @@ public class TaskSendExpressTrace extends TimerTask  {
 				ArrayList<DTOSendExpressTrace> list = dao.callSendExpressTrace(brandCdList[i], "00");
 				url = new URL(prop.getProperty("sendExpressTrace."+brandCdList[i]+".url")); 
 				if(list.size() < 1) {
-					logger.info("ÇØ´ç°ÇÀÇ ¹è¼ÛÃßÀûµ¥ÀÌÅÍ°¡ ¾ø½À´Ï´Ù.");
+					logger.info("í•´ë‹¹ê±´ì˜ ë°°ì†¡ì¶”ì ë°ì´í„°ê°€ ì—†ìŠµë‹ˆë‹¤.");
 					continue;
 				}
 				
 				JSONObject sendData = createSendExTraceData(list);
 				System.out.println(sendData);
+				
+				// send data to Magentos [IOS 15-Jan-16]
 				String result = sendByPhp(url, sendData.toString());
+
+				
 //					if("Y".equals(result)) {
+				// Inserted by [IOS 15-Jan-16]
 				dao.updateExtraceSucc(brandCdList[i], "10");
+				if (!brandCdList[i].equals("6101"))		// Puma Magentoê°€ ì•„ë‹Œê²½ìš°	[
+					dao.updateExtraceSucc(brandCdList[i], "60");
+				
 //					}
 				logger.debug("Send Result: "+ result);
 			}
@@ -148,7 +156,7 @@ public class TaskSendExpressTrace extends TimerTask  {
 		}
 		return sb.toString();
 	}
-//	
+	
 //	public static void main(String args[]) {
 //		TaskSendExpressTrace t = new TaskSendExpressTrace();
 //		t.run();
