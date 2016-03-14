@@ -152,9 +152,9 @@ public class DAOSendAPI {
 	
 	
 	/**
-	 * @desc �귣��, ���ͺ� ������ ������� ��ȸ 
-	 * 		������� =  ����� - (����� + ���⿹�� + ��Ÿ�����)
-	 * 		���� : ������� =  ����� - (���Ȯ���� + ��Ÿ���Ȯ����)
+	 * @desc 브랜드, 센터별 현재고와 가용재고 조회 
+	 * 		가용재고 =  현재고 - (출고예정 + 반출예정 + 기타출고예정)
+	 * 		기존 : 가용재고 =  현재고 - (출고확정전 + 기타출고확정전)
 	 * @param centerCd
 	 * @param brandCd
 	 * @return
@@ -848,19 +848,19 @@ public class DAOSendAPI {
 		
 		sb.append(" SELECT USER_ID bizUserId, USER_PW bizUserPw, '").append(callId)
 		.append("' callId, 'UTF8' encType , M3.BRAND_NO brandNo, INVC_NO expressNo, ")  
-		.append(" DECODE(CRG_ST, '91', 'S', 'F') dvState, ") 
-		.append(" CASE WHEN NO_CLDV_RSN_CD = '01' THEN '����������' ")   
-		.append(" WHEN NO_CLDV_RSN_CD = '02' THEN '������'  ")
-		.append(" WHEN NO_CLDV_RSN_CD = '05' THEN '��������'  ")
-		.append(" WHEN NO_CLDV_RSN_CD = '06' THEN '�з�����'  ")
-		.append(" WHEN NO_CLDV_RSN_CD = '08' THEN '��ȭ�Ұ���' ")  
-		.append(" WHEN NO_CLDV_RSN_CD = '09' THEN '����ź�'  ")
-		.append(" WHEN NO_CLDV_RSN_CD = '11' THEN 'õ������'  ")
-		.append(" WHEN NO_CLDV_RSN_CD = '16' THEN '��������'  ")
-		.append(" WHEN NO_CLDV_RSN_CD = '21' THEN '��ǰ���(�ļ�/�н�)' ")  
-		.append(" WHEN NO_CLDV_RSN_CD = '23' THEN '����޹�'  ")
-		.append(" WHEN NO_CLDV_RSN_CD = '24' THEN '�����Ϲ��' ")  
-		.append(" WHEN NO_CLDV_RSN_CD = '32' THEN '��������/���' ")  
+		.append(" DECODE(CRG_ST, '91', 'S', 'F') dvState, ")   
+		.append(" CASE WHEN NO_CLDV_RSN_CD = '01' THEN '고객정보오류' ")   
+		.append(" WHEN NO_CLDV_RSN_CD = '02' THEN '고객부재'  ")
+		.append(" WHEN NO_CLDV_RSN_CD = '05' THEN '지연도착'  ")
+		.append(" WHEN NO_CLDV_RSN_CD = '06' THEN '분류오류'  ")
+		.append(" WHEN NO_CLDV_RSN_CD = '08' THEN '통화불가능' ")  
+		.append(" WHEN NO_CLDV_RSN_CD = '09' THEN '수취거부'  ")
+		.append(" WHEN NO_CLDV_RSN_CD = '11' THEN '천재지변'  ")
+		.append(" WHEN NO_CLDV_RSN_CD = '16' THEN '착지변경'  ")
+		.append(" WHEN NO_CLDV_RSN_CD = '21' THEN '상품사고(파손/분실)' ")  
+		.append(" WHEN NO_CLDV_RSN_CD = '23' THEN '토요휴무'  ")
+		.append(" WHEN NO_CLDV_RSN_CD = '24' THEN '지정일배달' ")  
+		.append(" WHEN NO_CLDV_RSN_CD = '32' THEN '차량고장/사고' ")
 		.append(" END noDvReason  ")
 		.append(" , TO_CHAR(REG_DTIME,'YYYYMMDDHH24MISS') regDatetime   ")
 		.append(" FROM EDIEXPRESS_CJ_RECEIVE M1 , CMAPIUSER M2 , ( SELECT DISTINCT L1.CENTER_CD, ") 
