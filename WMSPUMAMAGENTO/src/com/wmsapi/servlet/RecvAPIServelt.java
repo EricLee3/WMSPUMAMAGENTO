@@ -45,7 +45,7 @@ public class RecvAPIServelt extends HttpServlet {
 			
 			if(msg.length() < 1) {
 				logger.debug(resp);
-				resp = createRespMsg("ERR_05", "Post Param msg°¡ Á¸ÀçÇÏÁö ¾Ê½À´Ï´Ù.", "0", "0", "");
+				resp = createRespMsg("ERR_05", "Post Param msgê°€ ì¡´ìž¬í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.", "0", "0", "");
 			} else {
 				logger.debug(request.getParameter("msg"));
 				System.out.println(request.getParameter("msg"));
@@ -60,7 +60,7 @@ public class RecvAPIServelt extends HttpServlet {
 				callId = recvHeader.getString("callId");
 				String userId = recvHeader.getString("bizUserId");
 				String userPw = recvHeader.getString("bizUserPw");
-				if(!isValidUserId(userId, userPw)) { // API À¯È¿°èÁ¤ ID È®ÀÎ
+				if(!isValidUserId(userId, userPw)) { // API ìœ íš¨ê³„ ID í™•ì¸
 					resp = "ERR_001";
 					hasError = true;
 				}
