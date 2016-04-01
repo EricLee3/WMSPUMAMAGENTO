@@ -28,7 +28,7 @@ public class SVCSendUpdInventory {
 //			URL url = new URL(prop.getProperty("sendUpdInventory."+brandCd+".url")); 
 //			ArrayList<DTOSendInventory> list = dao.callSendUpdInventory(centerCd, brandCd);
 //			if(list.size() < 1) {
-//				logger.info("ÇØ´ç ¹°·ù¼¾ÅÍ¿¡ Àç°í°¡ ¾ø½À´Ï´Ù.");
+//				logger.info("í•´ë‹¹ ë¬¼ë¥˜ì„¼í„°ì— ìž¬ê³ ê°€ ì—†ìŠµë‹ˆë‹¤.");
 //				return;
 //			}
 //			JSONObject sendData = createInvenData(list);

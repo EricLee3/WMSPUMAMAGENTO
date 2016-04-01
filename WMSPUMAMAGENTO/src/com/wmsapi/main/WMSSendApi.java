@@ -38,7 +38,7 @@ public class WMSSendApi {
 			}  else if("sendExpressTraceDaily".equals(args[0])) {
 				t1.schedule(new TaskSendExpressDaily(), startExpressDt, 86400000);
 			} else {
-				logger.info("Àß¸øµÈ ¸Å°³º¯¼ö ¿¡·¯=>"+args[0]);
+				logger.info("ìž˜ëª»ëœ ë§¤ê°œë³€ìˆ˜ ì—ëŸ¬ =>"+args[0]);
 			}
 		}catch(ParseException e){
 			loggerErr.error(e.getMessage());
@@ -66,7 +66,7 @@ public class WMSSendApi {
 			cal.set(Calendar.SECOND, 0);
 			t1.schedule(new TaskSendExpressDaily(), cal.getTime(), 86400000);
 		} else {
-			logger.info("Àß¸øµÈ ¸Å°³º¯¼ö ¿¡·¯=>"+args[0]);
+			logger.info("ï¿½ß¸ï¿½ï¿½ï¿½ ï¿½Å°ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½=>"+args[0]);
 		}*/
 		logger.info("end!!");
 	}

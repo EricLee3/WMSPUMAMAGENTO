@@ -51,7 +51,7 @@ public class TaskOutbound extends TimerTask {
 				ArrayList<DTOSendOutbound> list = dao.callSendOutbound(brandCdList[i]);
 				url = new URL(prop.getProperty("sendOutbound."+brandCdList[i]+".url")); 
 				if(list.size() < 1) {
-					logger.info("Ãâ°íÈ®Á¤ °ÇÀÌ ¾ø½À´Ï´Ù.");
+					logger.info("ì¶œê³ í™•ì • ê±´ì´ ì—†ìŠµë‹ˆë‹¤.");
 					continue;
 				}
 				
